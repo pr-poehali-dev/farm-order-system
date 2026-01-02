@@ -4,6 +4,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 
 type Product = {
@@ -23,6 +26,8 @@ type CartItem = Product & {
 
 const Index = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
 
   const products: Product[] = [
     {
@@ -93,24 +98,87 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">🌾</span>
-              <h1 className="text-2xl font-bold text-primary">ФермаЗаказ</h1>
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border shadow-sm">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between gap-6">
+            <div className="flex items-center gap-3">
+              <img src="https://cdn.poehali.dev/projects/fa62f71d-50ca-42ff-abc6-043c2f78f158/bucket/4x/logo.png" alt="Логотип" className="h-10 w-10 object-contain" />
+              <h1 className="text-xl md:text-2xl font-bold text-primary whitespace-nowrap">Фермерская корзина</h1>
             </div>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" className="relative">
-                  <Icon name="ShoppingCart" size={20} />
-                  {cart.length > 0 && (
-                    <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 bg-primary">
-                      {cart.length}
-                    </Badge>
-                  )}
-                </Button>
-              </SheetTrigger>
+            
+            <div className="hidden lg:flex items-center gap-1 flex-1 max-w-md">
+              <Input 
+                type="search" 
+                placeholder="Поиск продуктов..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1"
+              />
+              <Button size="icon" variant="ghost">
+                <Icon name="Search" size={20} />
+              </Button>
+            </div>
+
+            <nav className="hidden md:flex items-center gap-6">
+              <a href="#catalog" className="text-sm font-medium hover:text-primary transition-colors">Каталог</a>
+              <a href="#pickup-points" className="text-sm font-medium hover:text-primary transition-colors">Пункты выдачи</a>
+              <a href="#partner" className="text-sm font-medium hover:text-primary transition-colors">Стать партнером</a>
+            </nav>
+
+            <div className="flex items-center gap-2">
+              <Dialog open={isAuthOpen} onOpenChange={setIsAuthOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="hidden md:flex">
+                    <Icon name="User" size={18} className="mr-2" />
+                    Войти
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Регистрация / Вход</DialogTitle>
+                  </DialogHeader>
+                  <Tabs defaultValue="client" className="w-full">
+                    <TabsList className="grid w-full grid-cols-3 mb-4">
+                      <TabsTrigger value="client">Клиент</TabsTrigger>
+                      <TabsTrigger value="producer">Производитель</TabsTrigger>
+                      <TabsTrigger value="pickup">ПВЗ</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="client" className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Телефон или Email</label>
+                        <Input type="text" placeholder="+7 (___) ___-__-__" />
+                      </div>
+                      <Button className="w-full">Получить код</Button>
+                    </TabsContent>
+                    <TabsContent value="producer" className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Телефон или Email</label>
+                        <Input type="text" placeholder="+7 (___) ___-__-__" />
+                      </div>
+                      <Button className="w-full">Получить код</Button>
+                    </TabsContent>
+                    <TabsContent value="pickup" className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Телефон или Email</label>
+                        <Input type="text" placeholder="+7 (___) ___-__-__" />
+                      </div>
+                      <Button className="w-full">Получить код</Button>
+                    </TabsContent>
+                  </Tabs>
+                </DialogContent>
+              </Dialog>
+              
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="sm" className="relative">
+                    <Icon name="ShoppingCart" size={18} />
+                    {cart.length > 0 && (
+                      <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 bg-primary text-xs">
+                        {cart.length}
+                      </Badge>
+                    )}
+                  </Button>
+                </SheetTrigger>
               <SheetContent className="w-full sm:max-w-lg animate-slide-in-right">
                 <SheetHeader>
                   <SheetTitle>Корзина</SheetTitle>
@@ -191,7 +259,7 @@ const Index = () => {
             Выбирайте продукты, оформляйте предзаказ и забирайте в ближайшем пункте выдачи
           </p>
           <Button size="lg" className="text-lg px-8 py-6 hover:scale-105 transition-transform">
-            Сделать предзаказ
+            Оформить предзаказ
             <Icon name="ArrowRight" size={20} className="ml-2" />
           </Button>
         </div>
@@ -262,50 +330,92 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="py-20 bg-muted/30">
+      <section id="advantages" className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-12">
-            <div>
-              <h2 className="text-3xl font-bold mb-8">Преимущества для покупателей</h2>
-              <div className="space-y-6">
+          <h2 className="text-4xl font-bold text-center mb-16">Преимущества для всех</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-white rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+                  <Icon name="ShoppingBag" size={32} className="text-green-600" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4">Для покупателей</h3>
+              </div>
+              <div className="space-y-4">
                 {[
                   { icon: 'Percent', title: 'Скидка до 40%', desc: 'Экономьте на предзаказе' },
                   { icon: 'Sparkles', title: 'Свежайшие продукты', desc: 'Напрямую от фермера' },
                   { icon: 'CalendarCheck', title: 'Гарантированная дата', desc: 'Точно знаете когда забрать' },
                   { icon: 'MapPin', title: 'Удобные ПВЗ', desc: 'Возле вашего дома' }
                 ].map((item, idx) => (
-                  <div key={idx} className="flex gap-4 animate-fade-in" style={{ animationDelay: `${idx * 100}ms` }}>
-                    <div className="w-12 h-12 flex-shrink-0 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <Icon name={item.icon as any} size={24} className="text-primary" />
-                    </div>
+                  <div key={idx} className="flex gap-3">
+                    <Icon name={item.icon as any} size={20} className="text-green-600 flex-shrink-0 mt-1" />
                     <div>
-                      <h3 className="font-semibold text-lg mb-1">{item.title}</h3>
-                      <p className="text-muted-foreground">{item.desc}</p>
+                      <h4 className="font-semibold mb-1">{item.title}</h4>
+                      <p className="text-sm text-muted-foreground">{item.desc}</p>
                     </div>
                   </div>
                 ))}
               </div>
+              <Button className="w-full mt-6 bg-green-600 hover:bg-green-700">
+                Оформить предзаказ
+              </Button>
             </div>
-            <div>
-              <h2 className="text-3xl font-bold mb-8">Преимущества для фермеров</h2>
-              <div className="space-y-6">
+
+            <div className="bg-white rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 mx-auto mb-4 bg-amber-100 rounded-full flex items-center justify-center">
+                  <Icon name="Tractor" size={32} className="text-amber-600" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4">Для фермеров</h3>
+              </div>
+              <div className="space-y-4">
                 {[
                   { icon: 'TrendingUp', title: 'Предсказуемые объёмы', desc: 'Знаете сколько производить' },
                   { icon: 'Calendar', title: 'Планирование', desc: 'Оптимизация производства' },
                   { icon: 'Store', title: 'Без ярмарок', desc: 'Не нужно стоять на точке' },
                   { icon: 'ShieldCheck', title: 'Меньше рисков', desc: 'Снижение издержек хранения' }
                 ].map((item, idx) => (
-                  <div key={idx} className="flex gap-4 animate-fade-in" style={{ animationDelay: `${idx * 100}ms` }}>
-                    <div className="w-12 h-12 flex-shrink-0 bg-secondary/10 rounded-lg flex items-center justify-center">
-                      <Icon name={item.icon as any} size={24} className="text-secondary" />
-                    </div>
+                  <div key={idx} className="flex gap-3">
+                    <Icon name={item.icon as any} size={20} className="text-amber-600 flex-shrink-0 mt-1" />
                     <div>
-                      <h3 className="font-semibold text-lg mb-1">{item.title}</h3>
-                      <p className="text-muted-foreground">{item.desc}</p>
+                      <h4 className="font-semibold mb-1">{item.title}</h4>
+                      <p className="text-sm text-muted-foreground">{item.desc}</p>
                     </div>
                   </div>
                 ))}
               </div>
+              <Button className="w-full mt-6 bg-amber-600 hover:bg-amber-700">
+                Стать партнером
+              </Button>
+            </div>
+
+            <div className="bg-white rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Icon name="Package" size={32} className="text-blue-600" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4">Для ПВЗ</h3>
+              </div>
+              <div className="space-y-4">
+                {[
+                  { icon: 'Users', title: 'Новые клиенты', desc: 'Привлекаем покупателей на ваши товары' },
+                  { icon: 'DollarSign', title: 'Доп. доход', desc: 'Без дополнительных расходов' },
+                  { icon: 'Home', title: 'Без новых площадей', desc: 'Используете имеющееся пространство' },
+                  { icon: 'TrendingUp', title: 'Узнаваемость', desc: 'Повышение видимости в интернете' }
+                ].map((item, idx) => (
+                  <div key={idx} className="flex gap-3">
+                    <Icon name={item.icon as any} size={20} className="text-blue-600 flex-shrink-0 mt-1" />
+                    <div>
+                      <h4 className="font-semibold mb-1">{item.title}</h4>
+                      <p className="text-sm text-muted-foreground">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Button className="w-full mt-6 bg-blue-600 hover:bg-blue-700">
+                Стать пунктом выдачи
+              </Button>
             </div>
           </div>
         </div>
@@ -350,9 +460,9 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-3 gap-8">
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-2xl">🌾</span>
-                <h3 className="text-xl font-bold">ФермаЗаказ</h3>
+              <div className="flex items-center gap-3 mb-4">
+                <img src="https://cdn.poehali.dev/projects/fa62f71d-50ca-42ff-abc6-043c2f78f158/bucket/4x/logo.png" alt="Логотип" className="h-10 w-10 object-contain brightness-0 invert" />
+                <h3 className="text-xl font-bold">Фермерская корзина</h3>
               </div>
               <p className="text-primary-foreground/80">
                 Свежие фермерские продукты по предзаказу с доставкой в пункты выдачи
@@ -361,21 +471,27 @@ const Index = () => {
             <div>
               <h4 className="font-semibold mb-4">Контакты</h4>
               <div className="space-y-2 text-primary-foreground/80">
-                <p>📞 +7 (900) 123-45-67</p>
-                <p>✉️ info@fermazakaz.ru</p>
+                <p className="flex items-center gap-2">
+                  <Icon name="Phone" size={16} />
+                  +7 (906) 183-93-39
+                </p>
+                <p className="flex items-center gap-2">
+                  <Icon name="Mail" size={16} />
+                  activator2025@gmail.com
+                </p>
               </div>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Информация</h4>
               <div className="space-y-2 text-primary-foreground/80">
-                <p>О проекте</p>
-                <p>Для фермеров</p>
-                <p>Для ПВЗ</p>
+                <a href="#about" className="block hover:text-primary-foreground transition-colors">О проекте</a>
+                <a href="#partner" className="block hover:text-primary-foreground transition-colors">Для фермеров</a>
+                <a href="#pickup-points" className="block hover:text-primary-foreground transition-colors">Для ПВЗ</a>
               </div>
             </div>
           </div>
           <div className="border-t border-primary-foreground/20 mt-8 pt-8 text-center text-primary-foreground/60">
-            <p>© 2024 ФермаЗаказ. Все права защищены.</p>
+            <p>© 2026 Фермерская корзина. Все права защищены.</p>
           </div>
         </div>
       </footer>
